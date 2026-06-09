@@ -14,9 +14,9 @@ const io = new Server(server, {
   },
 });
 
-require("./startups/db")();
-require("./startups/prod")(app);
-require("./startups/routes")(app);
-require("./startups/socket")(io);
+require("./src/startups/db")();
+require("./src/startups/prod")(app);
+require("./src/startups/routes")(app);
+require("./src/startups/socket")(io);
 
 server.listen(PORT, () => console.log(`Server is running on port - ${PORT}...`));

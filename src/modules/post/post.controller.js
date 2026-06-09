@@ -1,15 +1,9 @@
-const express = require("express");
-const auth = require("../middleware/auth");
-const postUpload = require("../config/multer-upload");
 const path = require("path");
 const fs = require("fs");
-const Post = require("../models/posts");
-const User = require("../models/users");
-const { fstat } = require("fs");
-const router = express.Router();
+const Post = require("./post.model");
+const User = require("../user/user.model");
 
-// uploading  a post
-router.post("/", auth, postUpload.array("media", 10), async (req, res) => {
+const createPost = async (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res
       .status(400)
@@ -34,10 +28,9 @@ router.post("/", auth, postUpload.array("media", 10), async (req, res) => {
   return res
     .status(201)
     .json({ message: "Post uploaded Successfully!", post: newPost });
-});
+};
 
-// getting all the posts
-router.get("/myposts", auth, async (req, res) => {
+const getMyPost = async (req, res) => {
   let { page = 1, limit = 10 } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
@@ -50,9 +43,9 @@ router.get("/myposts", auth, async (req, res) => {
   const hasNextPage = posts.length === limit ? true : false;
 
   res.json({ posts, page, limit, hasNextPage });
-});
+};
 
-router.get("/following", auth, async (req, res) => {
+const getFollowingPosts = async (req, res) => {
   let { page = 1, limit = 10, cursor } = req.query;
   page = parseInt(page);
   limit = parseInt(limit);
@@ -75,9 +68,9 @@ router.get("/following", auth, async (req, res) => {
   const hasNextPage = posts.length === limit ? true : false;
 
   res.json({ posts, nextCursor, hasNextPage });
-});
+};
 
-router.delete("/:postId", auth, async (req, res) => {
+const deletePost = async (req, res) => {
   const postId = req.params.postId;
   const userId = req.user._id;
 
@@ -99,9 +92,9 @@ router.delete("/:postId", auth, async (req, res) => {
 
   await post.deleteOne();
   res.json("Post deleted successfully");
-});
+};
 
-router.patch("/:postId/like", auth, async (req, res) => {
+const likeUnlikePost = async (req, res) => {
   const postId = req.params.postId;
   const userId = req.user._id;
 
@@ -120,9 +113,9 @@ router.patch("/:postId/like", auth, async (req, res) => {
     message: alreadyLiked ? "Post Unliked" : "Post Liked",
     like: updatedPost.like.length,
   });
-});
+};
 
-router.post("/:postId/comments", auth, async (req, res) => {
+const addComment = async (req, res) => {
   const postId = req.params.postId;
   const userId = req.user._id;
   const text = req.body.text;
@@ -145,9 +138,9 @@ router.post("/:postId/comments", auth, async (req, res) => {
     message: "Comment added successfully",
     comment: post.comments[post.comments.length - 1],
   });
-});
+};
 
-router.post("/:postId/comments/:commentId/replies", auth, async (req, res) => {
+const addCommentReply = async (req, res) => {
   const { postId, commentId } = req.params;
   const userId = req.user._id;
   const text = req.body.text;
@@ -172,9 +165,9 @@ router.post("/:postId/comments/:commentId/replies", auth, async (req, res) => {
     message: "Reply added successfully",
     reply: comment.replies[comment.replies.length - 1],
   });
-});
+};
 
-router.delete("/:postId/comments/:commentId", auth, async (req, res) => {
+const deleteComment = async (req, res) => {
   const { postId, commentId } = req.params;
   const userId = req.user._id;
 
@@ -199,6 +192,15 @@ router.delete("/:postId/comments/:commentId", auth, async (req, res) => {
     message: "Comment deleted successfully",
     comments: post.comments,
   });
-});
+};
 
-module.exports = router;
+module.exports = {
+  createPost,
+  getMyPost,
+  getFollowingPosts,
+  deletePost,
+  likeUnlikePost,
+  addComment,
+  addCommentReply,
+  deleteComment,
+};

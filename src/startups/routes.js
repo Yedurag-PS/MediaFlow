@@ -2,9 +2,9 @@ const cors = require('cors')
 const express = require('express')
 
 const logger = require("../config/logger")
-const userRoutes = require('../routes/users')
-const postRoutes = require('../routes/posts')
-const chatRoutes = require('../routes/chats')
+const userRoutes = require('../modules/user/user.routes')
+const postRoutes = require('../modules/post/post.routes')
+const chatRoutes = require('../modules/chat/chat.routes')
 
 
 module.exports = function (app) {
